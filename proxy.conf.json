@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "http://task.soft-zone.net",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

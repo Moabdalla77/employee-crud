@@ -1,0 +1,127 @@
+<main class="employee-page">
+  <section class="card">
+    <header class="table-header">
+      <h1>Manage Employees</h1>
+      <div class="actions">
+        <button class="danger" [disabled]="selectedRows.size === 0">Delete</button>
+        <button (click)="openAddDialog()">Add New Employee</button>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <p class="state-message">Loading employees...</p>
+    } @else if (errorMessage()) {
+      <p class="state-message error">{{ errorMessage() }}</p>
+    } @else if (employees().length === 0) {
+      <p class="state-message">No employees found.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  [checked]="allRowsSelected()"
+                  (change)="toggleAllRows($any($event.target).checked)"
+                />
+              </th>
+              <th class="sortable" (click)="toggleSort('name')">
+                Name
+                <span>{{ sortBy() === 'name' ? (sortDirection() === 'asc' ? '^' : 'v') : '' }}</span>
+              </th>
+              <th>Email</th>
+              <th class="sortable" (click)="toggleSort('address')">
+                Address
+                <span>{{ sortBy() === 'address' ? (sortDirection() === 'asc' ? '^' : 'v') : '' }}</span>
+              </th>
+              <th>Phone</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (employee of employees(); track employee.id) {
+              <tr>
+                <td>
+                  <input
+                    type="checkbox"
+                    [checked]="selectedRows.has(employee.id)"
+                    (change)="toggleRow(employee.id, $any($event.target).checked)"
+                  />
+                </td>
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.address }}</td>
+                <td>{{ employee.mobile }}</td>
+                <td class="row-actions">
+                  <button class="icon" (click)="openEditDialog(employee)">Edit</button>
+                  <button class="icon danger" (click)="openDeleteDialog(employee)">Delete</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="pagination">
+        <button (click)="setPage(currentPage() - 1)" [disabled]="currentPage() === 1">Previous</button>
+        @if (visiblePages()[0] > 1) {
+          <button class="page-number" (click)="setPage(1)">1</button>
+        }
+        @if (showLeadingEllipsis()) {
+          <span class="ellipsis">...</span>
+        }
+        @for (page of visiblePages(); track page) {
+          <button
+            class="page-number"
+            [class.active]="page === currentPage()"
+            (click)="setPage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+        @if (showTrailingEllipsis()) {
+          <span class="ellipsis">...</span>
+        }
+        @if (visiblePages()[visiblePages().length - 1] < totalPages()) {
+          <button class="page-number" (click)="setPage(totalPages())">{{ totalPages() }}</button>
+        }
+        <button (click)="setPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+          Next
+        </button>
+      </footer>
+    }
+  </section>
+
+  <app-add-employee
+    [open]="isAddDialogOpen()"
+    (closed)="closeAddDialog()"
+    (saved)="onEmployeeSaved()"
+  />
+
+  <app-edit-employee
+    [open]="isEditDialogOpen()"
+    [employee]="employeeToEdit()"
+    (closed)="closeEditDialog()"
+    (saved)="onEmployeeSaved()"
+  />
+
+  @if (isDeleteDialogOpen() && employeeToDelete()) {
+    <div class="modal-backdrop">
+      <section class="delete-modal">
+        <header>
+          <h2>Delete Employee</h2>
+        </header>
+        <p>Are you sure you want to delete this record?</p>
+        <footer>
+          <button class="secondary" [disabled]="isDeleting()" (click)="closeDeleteDialog()">
+            Cancel
+          </button>
+          <button class="danger" [disabled]="isDeleting()" (click)="confirmDelete()">
+            {{ isDeleting() ? 'Deleting...' : 'Delete' }}
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+</main>

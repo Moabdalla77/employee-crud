@@ -1,0 +1,59 @@
+@if (open) {
+  <div class="modal-backdrop">
+    <section class="modal-card">
+      <header class="modal-header">
+        <h2>Add Employee</h2>
+        <button type="button" class="close-button" (click)="close()">x</button>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <label>
+          Name
+          <input type="text" formControlName="name" />
+          @if (hasError('name')) {
+            <small>Name is required.</small>
+          }
+        </label>
+
+        <label>
+          Email
+          <input type="email" formControlName="email" />
+          @if (hasError('email')) {
+            @if (form.controls.email.errors?.['required']) {
+              <small>Email is required.</small>
+            } @else if (form.controls.email.errors?.['email']) {
+              <small>Please enter a valid email address.</small>
+            }
+          }
+        </label>
+
+        <label>
+          Mobile
+          <input type="text" formControlName="mobile" />
+          @if (hasError('mobile')) {
+            @if (form.controls.mobile.errors?.['required']) {
+              <small>Mobile is required.</small>
+            } @else if (form.controls.mobile.errors?.['pattern']) {
+              <small>Mobile must be 11 digits and start with 010, 011, 012, or 015.</small>
+            }
+          }
+        </label>
+
+        <label>
+          Address
+          <textarea rows="3" formControlName="address"></textarea>
+          @if (hasError('address')) {
+            <small>Address is required.</small>
+          }
+        </label>
+
+        <footer class="modal-actions">
+          <button type="button" class="secondary" (click)="close()">Cancel</button>
+          <button type="submit" [disabled]="form.invalid || isSaving">
+            {{ isSaving ? 'Saving...' : 'Add' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}
